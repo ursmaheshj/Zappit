@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from django.shortcuts import render
 from rest_framework import generics,permissions
 from posts.serializers import postSerializer, voteSerializer
@@ -22,4 +23,6 @@ class VoteList(generics.CreateAPIView):
         return Vote.objects.filter(voter=user,post=post)
 
     def perform_create(self, serializer):
+        if self.get_queryset().exists():
+            raise ValidationError('You have already voted for this post :)')
         serializer.save(voter=self.request.user,post=Post.objects.get(pk=self.kwargs['pk']))
